@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
                     int n = recv(i, r_line, LEN, 0);
 
                     //Client wishes to close connection (sent "/exit")
-                    if(!strcmp(r_line, "/exit")) {
+                    if(!strcmp(r_line, "/exit") || (n == 0)) {
                         //Close the client
                         close(i);
 

@@ -112,6 +112,7 @@ int main(int argc, char *argv[]) {
                     }
                     ntrim(response);
                     printf("%s\n", response);
+                    memset(response, 0, MAX_INPUT_SIZE);
 
                 }
                 else {

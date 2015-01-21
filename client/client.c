@@ -127,42 +127,18 @@ int main(int argc, char *argv[]) {
                     send(sockfd, r_line, strlen(r_line), 0);
 
                     // Quit the program if /quit input
-                    if(!strcmp(r_line, "/quit"))
+                    if(!strcmp(r_line, "/exit"))
                     {
+                        free(response);
                         close(sockfd);
                         return 0;
                     }
                 }
             }
         }
-
-
     }
 
-
-
-
-
-    // //Receive data over the socket:
-    // //  socket descriptor
-    // //  where to store data
-    // //  MAX_BYTES
-    // //  optional settings
-    // //Returns the number of bytes received...
-    // int n = recv(sockfd, r_line, 1024, 0);  //Receive is BLOCKING: Will wait for SOME data, but not necessarily until MAX_BYTES
-    //
-    // if(n < 0) {
-    //     //Server has potentially closed the connection (check for specific error value)
-    //     printf("Error receiving bytes from server...\n");
-    //     return -1;
-    // } else if(n == 0) {
-    //     printf("No bytes were received from server...\n");
-    // } else {
-    //     printf("Received %d bytes from server: %s\n", n, r_line);
-    // }
-    //
-    // close(sockfd);
-
+    free(response);
     return 0;
 }
 

@@ -11,6 +11,9 @@
 #include <string.h>
 #include <sys/select.h>
 
+#define PORT 8888   //Default server port
+#define LEN 1024    //Arbitrary string length
+
 void getAddressAndPort(struct sockaddr_in *s, char *addr, size_t addr_size, int *port);
 
 int main(int argc, char *argv[]) {
@@ -30,7 +33,7 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in clientaddr;
 
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_port = htons(9876);
+    serveraddr.sin_port = htons(PORT);
     serveraddr.sin_addr.s_addr = INADDR_ANY;    //Specifies the address on which the server will listen to for clients...
                                                 //INADDR_ANY specifies to listen on ANY address, but with a fixed port
 
@@ -84,10 +87,10 @@ int main(int argc, char *argv[]) {
                     //The clientaddr structure is filled by accept, filling the client IP address and port number
                     int clientsocket = accept(sockfd, (struct sockaddr *) &clientaddr, &len);
 
-                    char addr[1024];
+                    char addr[LEN];
                     int prt;
-                    getAddressAndPort(&clientaddr, addr, 1024, &prt);
-                    printf( "<---> New client connected (%s:%d)\n\n", addr, prt);
+                    getAddressAndPort(&clientaddr, addr, LEN, &prt);
+                    printf("<---> New client connected (%s:%d)\n\n", addr, prt);
 
                     //Add the new client socket to the set
                     FD_SET(clientsocket, &sockets);
@@ -97,8 +100,13 @@ int main(int argc, char *argv[]) {
                 else {
 
                     //Receive data on the client socket
-                    char r_line[1024];
-                    int n = recv(i, r_line, 1024, 0);
+                    char r_line[LEN];
+
+                    //Clear the receive buffer
+                    memset(r_line, 0, LEN);
+
+                    //Receive data on the client socket
+                    int n = recv(i, r_line, LEN, 0);
 
                     //Client wishes to close connection (sent "/exit")
                     if(!strcmp(r_line, "/exit")) {
@@ -109,10 +117,10 @@ int main(int argc, char *argv[]) {
                         FD_CLR(i, &sockets);
 
                         //Print to the log
-                        char addr[1024];
+                        char addr[LEN];
                         int prt;
-                        getAddressAndPort(&clientaddr, addr, 1024, &prt);
-                        printf( "<-x-> Client disconnected (%s:%d)\n\n", addr, prt);
+                        getAddressAndPort(&clientaddr, addr, LEN, &prt);
+                        printf("<-x-> Client disconnected (%s:%d)\n\n", addr, prt);
                     }
 
                     //Client sent text: Relay to all clients

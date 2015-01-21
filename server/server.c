@@ -102,9 +102,6 @@ int main(int argc, char *argv[]) {
 
                     //Client wishes to close connection (sent "/exit")
                     if(!strcmp(r_line, "/exit")) {
-
-                        printf("TEST\n");
-
                         //Close the client
                         close(i);
 
@@ -130,7 +127,7 @@ int main(int argc, char *argv[]) {
                         for(int j = 0; j < FD_SETSIZE; j++) {
 
                             //Only send to client sockets that are open
-                            if(FD_ISSET(j, &sockets) && (j != sockfd)) {
+                            if(FD_ISSET(j, &sockets) && (j != sockfd) && (j != i)) {
 
                                 printf("---> Sending %d bytes to client (%d): %s\n", (int)strlen(r_line), j, r_line);
 

@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     //Create the socket address structure and populate it's fields
     struct sockaddr_in serveraddr;
     serveraddr.sin_family = AF_INET;                            //Specify the family again (AF_INET = internet family)
-    serveraddr.sin_port = htons(9876);                          //Specify the port on which to send data (16-bit) (# < 1024 is off-limits)
+    serveraddr.sin_port = htons(port);                          //Specify the port on which to send data (16-bit) (# < 1024 is off-limits)
     serveraddr.sin_addr.s_addr = inet_addr(address);        //Specify the IP address of the server with which to communicate
 
 

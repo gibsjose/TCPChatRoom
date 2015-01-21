@@ -6,12 +6,12 @@ ODIR = obj
 LDIR = ../lib
 LIBS = -lpthread
 
-BIN = server
+BIN = client
 
 _DEPS =
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = server.o
+_OBJ = client.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 all: setup $(BIN)

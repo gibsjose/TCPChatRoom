@@ -111,9 +111,7 @@ int main(int argc, char *argv[]) {
                         //Print to the log
                         char addr[1024];
                         int prt;
-
                         getAddressAndPort(&clientaddr, addr, 1024, &prt);
-
                         printf( "<-x-> Client disconnected (%s:%d)\n\n", addr, prt);
                     }
 

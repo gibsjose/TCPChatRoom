@@ -6,6 +6,7 @@
 
 #include <sys/socket.h> //Socket features
 #include <netinet/in.h> //Internet-specific features of sockets
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/select.h>
@@ -75,13 +76,26 @@ int main(int argc, char *argv[]) {
 
                 //Case 2: Socket I was using to listen for new clients
                 if(i == sockfd) {
-                    printf("New client connected\n");
-
                     //Accept connections to the socket, returning a CLIENT socket descriptor, used ONLY for communicating with that
                     //specific client
                     //Accept is BLOCKING: It will wait until at least 1 client tries to connect
                     //The clientaddr structure is filled by accept, filling the client IP address and port number
                     int clientsocket = accept(sockfd, (struct sockaddr *) &clientaddr, &len);
+
+                    char str[1024];
+                    struct in_addr t_in_addr;
+                    t_in_addr = inet_makeaddr(clientaddr.sin_addr.s_addr, 0);
+                    inet_ntop(AF_INET, (const void *)t_in_addr, str, 1024);
+
+                    printf( "---> New client connected: \n"
+                            "Socket ID: %d\n"
+                            "Address: %s\n"
+                            "Port: %d\n\n",
+                            clientsocket,
+                            //inet_ntoa(inet_makeaddr(clientaddr.sin_addr.s_addr, 0)),
+                            str,
+                            ntohs(clientaddr.sin_port)
+                    );
 
                     //Add the new client socket to the set
                     FD_SET(clientsocket, &sockets);
@@ -94,16 +108,24 @@ int main(int argc, char *argv[]) {
                     int n = recv(i, r_line, 1024, 0);
 
                     //Display data received
-                    printf("Received %d bytes from client: %s\n", n, r_line);
+                    printf("Received %d bytes from client (%d): %s\n", n, i, r_line);
 
-                    //Echo data back to client
-                    send(i, r_line, strlen(r_line), 0);
+                    //Echo data back to all clients
+                    for(int j = 0; j < FD_SETSIZE; j++) {
 
-                    //Close the client socket
-                    close(i);
+                        //Only send to client sockets that are open
+                        if(FD_ISSET(j, &sockets) && (j != sockfd)) {
 
-                    //Remove the socket from the set
-                    FD_CLR(i, &sockets);
+                            //Echo message to client
+                            send(j, r_line, strlen(r_line), 0);
+
+                            //Close client socket
+                            close(j);
+
+                            //Remove the socket from the set
+                            FD_CLR(i, &sockets);
+                        }
+                    }
                 }
             }
         }

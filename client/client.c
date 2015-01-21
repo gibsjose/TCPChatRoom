@@ -123,7 +123,15 @@ int main(int argc, char *argv[]) {
                     //  data (const void *)
                     //  size of the data
                     //  optional settings
+                    ntrim(r_line);
                     send(sockfd, r_line, strlen(r_line), 0);
+
+                    // Quit the program if /quit input
+                    if(!strcmp(r_line, "/quit"))
+                    {
+                        close(sockfd);
+                        return 0;
+                    }
                 }
             }
         }

@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
                         char addr[LEN];
                         int prt;
                         getAddressAndPort(&clientaddr, addr, LEN, &prt);
-                        printf("<-x-> Client disconnected (%s:%d)\n\n", addr, prt);
+                        printf("\n<-x-> Client disconnected (%s:%d)\n", addr, prt);
                     }
 
                     //Client sent text: Relay to all clients

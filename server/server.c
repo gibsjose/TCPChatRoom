@@ -11,6 +11,8 @@
 #include <string.h>
 #include <sys/select.h>
 
+void getAddressAndPort(struct sockaddr_in *s, char *addr, size_t addr_size, int *port);
+
 int main(int argc, char *argv[]) {
 
     //Open socket
@@ -82,20 +84,10 @@ int main(int argc, char *argv[]) {
                     //The clientaddr structure is filled by accept, filling the client IP address and port number
                     int clientsocket = accept(sockfd, (struct sockaddr *) &clientaddr, &len);
 
-                    char str[1024];
-                    struct in_addr t_in_addr;
-                    t_in_addr = inet_makeaddr(clientaddr.sin_addr.s_addr, 0);
-                    inet_ntop(AF_INET, (const void * restrict)&t_in_addr, str, 1024);
-
-                    printf( "<---> New client connected: \n"
-                            "Socket ID: %d\n"
-                            "Address: %s\n"
-                            "Port: %d\n\n",
-                            clientsocket,
-                            //inet_ntoa(inet_makeaddr(clientaddr.sin_addr.s_addr, 0)),
-                            str,
-                            ntohs(clientaddr.sin_port)
-                    );
+                    char addr[1024];
+                    int prt;
+                    getAddressAndPort(&clientaddr, addr, 1024, &prt);
+                    printf( "<---> New client connected (%s:%d)\n\n", addr, prt);
 
                     //Add the new client socket to the set
                     FD_SET(clientsocket, &sockets);
@@ -103,35 +95,61 @@ int main(int argc, char *argv[]) {
 
                 //Not a new connection
                 else {
-                    //Receive on the client socket
+
+                    //Receive data on the client socket
                     char r_line[1024];
                     int n = recv(i, r_line, 1024, 0);
 
-                    //Display data received
-                    printf("<--- Received %d bytes from client (%d): %s\n", n, i, r_line);
+                    //Client wishes to close connection (sent "/exit")
+                    if(!strcmp(r_line, "/exit")) {
 
-                    //Echo data back to all clients
-                    for(int j = 0; j < FD_SETSIZE; j++) {
+                        printf("TEST\n");
 
-                        //Only send to client sockets that are open
-                        if(FD_ISSET(j, &sockets) && (j != sockfd)) {
+                        //Close the client
+                        close(i);
 
-                            printf("---> Sending %d bytes to client (%d): %s\n", (int)strlen(r_line), j, r_line);
+                        //Remove the client socket from the set
+                        FD_CLR(i, &sockets);
 
-                            //Echo message to client
-                            send(j, r_line, strlen(r_line), 0);
+                        //Print to the log
+                        char addr[1024];
+                        int prt;
 
-                            //Close client socket
-                            //close(j);
+                        getAddressAndPort(&clientaddr, addr, 1024, &prt);
 
-                            //Remove the socket from the set
-                            //FD_CLR(i, &sockets);
+                        printf( "<-x-> Client disconnected (%s:%d)\n\n", addr, prt);
+                    }
 
-                            //printf("Closed socket for client()")
+                    //Client sent text: Relay to all clients
+                    else {
+
+                        //Display data received
+                        printf("<--- Received %d bytes from client (%d): %s\n", n, i, r_line);
+
+                        //Echo data back to all clients
+                        for(int j = 0; j < FD_SETSIZE; j++) {
+
+                            //Only send to client sockets that are open
+                            if(FD_ISSET(j, &sockets) && (j != sockfd)) {
+
+                                printf("---> Sending %d bytes to client (%d): %s\n", (int)strlen(r_line), j, r_line);
+
+                                //Echo message to client
+                                send(j, r_line, strlen(r_line), 0);
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+void getAddressAndPort(struct sockaddr_in *s, char *addr, size_t addr_size, int *port) {
+
+    struct in_addr t_in_addr;
+    t_in_addr = inet_makeaddr(s->sin_addr.s_addr, 0);
+    inet_ntop(AF_INET, (const void * restrict)&t_in_addr, addr, addr_size);
+
+    *port = ntohs(s->sin_port);
 }

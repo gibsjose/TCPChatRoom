@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     FD_SET(sockfd, &sockets);
 
     //Length of socket
-    int len = sizeof(clientaddr);
+    unsigned int len = sizeof(clientaddr);
 
     //Handle connections
     while(1) {
@@ -85,9 +85,9 @@ int main(int argc, char *argv[]) {
                     char str[1024];
                     struct in_addr t_in_addr;
                     t_in_addr = inet_makeaddr(clientaddr.sin_addr.s_addr, 0);
-                    inet_ntop(AF_INET, (const void *)t_in_addr, str, 1024);
+                    inet_ntop(AF_INET, (const void * restrict)&t_in_addr, str, 1024);
 
-                    printf( "---> New client connected: \n"
+                    printf( "<---> New client connected: \n"
                             "Socket ID: %d\n"
                             "Address: %s\n"
                             "Port: %d\n\n",
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
                     int n = recv(i, r_line, 1024, 0);
 
                     //Display data received
-                    printf("Received %d bytes from client (%d): %s\n", n, i, r_line);
+                    printf("<--- Received %d bytes from client (%d): %s\n", n, i, r_line);
 
                     //Echo data back to all clients
                     for(int j = 0; j < FD_SETSIZE; j++) {
@@ -116,14 +116,18 @@ int main(int argc, char *argv[]) {
                         //Only send to client sockets that are open
                         if(FD_ISSET(j, &sockets) && (j != sockfd)) {
 
+                            printf("---> Sending %d bytes to client (%d): %s\n", (int)strlen(r_line), j, r_line);
+
                             //Echo message to client
                             send(j, r_line, strlen(r_line), 0);
 
                             //Close client socket
-                            close(j);
+                            //close(j);
 
                             //Remove the socket from the set
-                            FD_CLR(i, &sockets);
+                            //FD_CLR(i, &sockets);
+
+                            //printf("Closed socket for client()")
                         }
                     }
                 }

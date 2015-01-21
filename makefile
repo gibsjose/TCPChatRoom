@@ -6,12 +6,12 @@ ODIR = obj
 LDIR = ../lib
 LIBS = -lpthread
 
-BIN = httpserver
+BIN = server
 
 _DEPS =
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = httpserver.o requesthandler.o
+_OBJ = server.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 all: setup $(BIN)
@@ -19,7 +19,7 @@ all: setup $(BIN)
 $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-httpserver: $(OBJ)
+$(BIN): $(OBJ)
 	gcc -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean setup

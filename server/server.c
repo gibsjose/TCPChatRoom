@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/select.h>
+#include <unistd.h>
 
 #define PORT 8888   //Default server port
 #define LEN 1024    //Arbitrary string length

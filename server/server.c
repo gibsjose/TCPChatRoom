@@ -14,7 +14,7 @@
 #define PORT 8888   //Default server port
 #define LEN 1024    //Arbitrary string length
 
-void getAddressAndPort(struct sockaddr_in *s, char *addr, size_t addr_size, int *port);
+void getAddressAndPort(struct sockaddr_in *s, char *addr, size_t addr_size, uint16_t *port);
 
 int main(int argc, char *argv[]) {
 
@@ -88,9 +88,9 @@ int main(int argc, char *argv[]) {
                     int clientsocket = accept(sockfd, (struct sockaddr *) &clientaddr, &len);
 
                     char addr[LEN];
-                    int prt;
+                    uint16_t prt = 0;
                     getAddressAndPort(&clientaddr, addr, LEN, &prt);
-                    printf("<---> New client connected (%s:%d)\n\n", addr, prt);
+                    printf("<---> New client connected (%s:%u)\n\n", addr, prt);
 
                     //Add the new client socket to the set
                     FD_SET(clientsocket, &sockets);
@@ -118,9 +118,9 @@ int main(int argc, char *argv[]) {
 
                         //Print to the log
                         char addr[LEN];
-                        int prt;
+                        uint16_t prt = 0;
                         getAddressAndPort(&clientaddr, addr, LEN, &prt);
-                        printf("\n<-x-> Client disconnected (%s:%d)\n", addr, prt);
+                        printf("\n<-x-> Client disconnected (%s:%u)\n", addr, prt);
                     }
 
                     //Client sent text: Relay to all clients
@@ -148,11 +148,16 @@ int main(int argc, char *argv[]) {
     }
 }
 
-void getAddressAndPort(struct sockaddr_in *s, char *addr, size_t addr_size, int *port) {
+void getAddressAndPort(struct sockaddr_in *s, char *addr, size_t addr_size, uint16_t *port) {
 
     struct in_addr t_in_addr;
-    t_in_addr = inet_makeaddr(s->sin_addr.s_addr, 0);
+    t_in_addr = inet_makeaddr(ntohl((unsigned long)s->sin_addr.s_addr), 0);
     inet_ntop(AF_INET, (const void * restrict)&t_in_addr, addr, addr_size);
+
+    printf("\nPORT: \n");
+    printf("raw: %u\n", s->sin_port);
+    printf("ntohs: %u\n", ntohs(s->sin_port));
+    printf("htons: %u\n", htons(s->sin_port));
 
     *port = ntohs(s->sin_port);
 }

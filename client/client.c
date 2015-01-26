@@ -1,4 +1,9 @@
-//Example client application
+//CIS 457 Lab 3 - Chat Room Client
+//Joe Gibson
+//Seth Hilaski
+//Adam Luckenbaugh
+//Raleigh Mumford
+
 
 #include <sys/socket.h> //Socket features
 #include <netinet/in.h> //Internet-specific features of sockets
@@ -10,7 +15,7 @@
 #include <libgen.h>
 #include <sys/select.h>
 
-
+// Max input supported by the chat client
 #define MAX_INPUT_SIZE (1024)
 
 //Trim the first newline character from the string
@@ -72,7 +77,7 @@ int main(int argc, char *argv[]) {
 
     //Add server socket and stdin to file desciptor set
     FD_SET(sockfd, &sockets);
-    FD_SET(0, &sockets);    //Add stdin to fd set
+    FD_SET(0, &sockets);
 
     //Can now send/receive data over the socket...
 
@@ -110,15 +115,17 @@ int main(int argc, char *argv[]) {
                         printf("Error reading data from server\n");
                         return -1;
                     }
-                    ntrim(response);
+                    ntrim(response);    //Extract the newline character
                     printf("%s\n", response);
-                    memset(response, 0, MAX_INPUT_SIZE);
+                    memset(response, 0, MAX_INPUT_SIZE);    //Reset input buffer
 
                 }
+                // Socket is the chat client
                 else {
-                    //char s_line[MAX_INPUT_SIZE];
                     char r_line[MAX_INPUT_SIZE];
+                    // Non-blocking read of input from chat client
                     read(i, r_line, MAX_INPUT_SIZE);
+
                     //Send the data over the socket:
                     //  socket descriptor
                     //  data (const void *)
@@ -127,11 +134,11 @@ int main(int argc, char *argv[]) {
                     ntrim(r_line);
                     send(sockfd, r_line, strlen(r_line), 0);
 
-                    // Quit the program if /quit input
+                    // Quit the program if /exit input
                     if(!strcmp(r_line, "/exit"))
                     {
-                        free(response);
-                        close(sockfd);
+                        free(response); // free allocated input buffer
+                        close(sockfd);  // close socket
                         return 0;
                     }
                 }

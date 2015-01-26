@@ -1,4 +1,8 @@
-//Example server application
+//CIS 457 Lab 3 - Chat Room Server
+//Joe Gibson
+//Seth Hilaski
+//Adam Luckenbaugh
+//Raleigh Mumford
 
 //This server will handle ALL clients that connect to it
 //This is done by using select(), which checks if a file descriptor actually

@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
                     else {
 
                         //Display data received
-                        printf("<--- Received %d bytes from client (%d): %s\n", n, i, r_line);
+                        printf("<---- Received %d bytes from client (%d): %s\n", n, i, r_line);
 
                         //Echo data back to all clients
                         for(int j = 0; j < FD_SETSIZE; j++) {
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
                             //Only send to client sockets that are open
                             if(FD_ISSET(j, &sockets) && (j != sockfd) && (j != i)) {
 
-                                printf("---> Sending %d bytes to client (%d): %s\n", (int)strlen(r_line), j, r_line);
+                                printf("----> Sending %d bytes to client (%d): %s\n", (int)strlen(r_line), j, r_line);
 
                                 //Echo message to client
                                 send(j, r_line, strlen(r_line), 0);

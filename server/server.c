@@ -162,11 +162,5 @@ void getAddressAndPort(struct sockaddr_in *s, char *addr, size_t addr_size, uint
     struct in_addr t_in_addr;
     t_in_addr = inet_makeaddr(ntohl((unsigned long)s->sin_addr.s_addr), 0);
     inet_ntop(AF_INET, (const void * restrict)&t_in_addr, addr, addr_size);
-
-    // printf("\nPORT: \n");
-    // printf("raw: %u\n", s->sin_port);
-    // printf("ntohs: %u\n", ntohs(s->sin_port));
-    // printf("htons: %u\n", htons(s->sin_port));
-
     *port = ntohs(s->sin_port);
 }
